@@ -1053,7 +1053,14 @@ printf  "distrobox: Setting up init system...\n"
 for host_mount in  ${HOST_MOUNTS_RO_INIT}; do
 	if findmnt "${host_mount}" > /dev/null; then umount "${host_mount}"; fi
 done
+
+init_program="/sbin/init"
+
 if command -v systemctl 2> /dev/null; then
+
+	if [ ! -f "${init_program}" ]; then
+		init_program="/lib/systemd/systemd"
+	fi
 	# Cleanup systemd to not interfere with the host
 	UNIT_TARGETS="
 		/etc/systemd/system/*.wants/*
@@ -1085,4 +1092,4 @@ mount --rbind /var/container-console /dev/console
 # Now we can launch init
 printf  "distrobox: Firing up init system...\n"
 printf "container_setup_done\n"
-exec  /sbin/init
+exec  ${init_program}
